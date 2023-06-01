@@ -13,8 +13,12 @@ struct ContentView: View {
     @State private var correctAnswer = Int.random(in: 0...2)
     
     @State private var showingScore = false
+    @State private var isFinal = false
     @State private var scoreTitle = ""
+    
     @State private var score = 0
+    @State private var countChoose = 0
+    private var life = 8
     
     var body: some View {
         
@@ -75,20 +79,33 @@ struct ContentView: View {
         }
         .alert(scoreTitle, isPresented: $showingScore) {
             Button("Continue") { askQuestion() }
+            
         } message: {
-            Text("Your score is ???")
+            Text("Your score is \(score)")
+        }
+        .alert("Finish", isPresented: $isFinal) {
+            Button("Restart") { restart() }
+        } message: {
+            Text("Your Final Score is \(score)")
         }
     }
     
     func flaggedTapped(_ number: Int) {
+        countChoose += 1
+
         if number == correctAnswer {
             scoreTitle = "Correct"
             score += 1
         } else {
             scoreTitle = "Wrong!\n That's the flag of \(countries[number])"
         }
+                
+        if countChoose == life {
+            isFinal = true
+        }
         
         showingScore = true
+        
     }
     
     func askQuestion() {
@@ -96,6 +113,10 @@ struct ContentView: View {
         correctAnswer = Int.random(in: 0...2)
     }
     
+    func restart() {
+        score = 0
+        countChoose = 0
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {
