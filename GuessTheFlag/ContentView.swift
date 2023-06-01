@@ -78,8 +78,10 @@ struct ContentView: View {
             .padding()
         }
         .alert(scoreTitle, isPresented: $showingScore) {
-            Button("Continue") { askQuestion() }
-            
+            Button("Continue") {
+                askQuestion()
+                if countChoose == life { isFinal = true }
+            }
         } message: {
             Text("Your score is \(score)")
         }
@@ -100,12 +102,7 @@ struct ContentView: View {
             scoreTitle = "Wrong!\n That's the flag of \(countries[number])"
         }
                 
-        if countChoose == life {
-            isFinal = true
-        }
-        
         showingScore = true
-        
     }
     
     func askQuestion() {
