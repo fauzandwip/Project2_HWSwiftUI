@@ -52,10 +52,8 @@ struct ContentView: View {
                             Button {
                                 flaggedTapped(number)
                             } label: {
-                                Image(countries[number])
-                                    .renderingMode(.original)
-                                    .clipShape(Capsule())
-                                    .shadow(radius: 5)
+                                // MARK: - Challenge 2 Project3
+                                FlagImage(name: countries[number])
                             }
                         }
                     }
@@ -113,6 +111,20 @@ struct ContentView: View {
     func restart() {
         score = 0
         countChoose = 0
+    }
+}
+
+
+// MARK: - Challenge 2 Project3
+
+struct FlagImage: View {
+    var name: String
+    
+    var body: some View {
+        Image(name)
+            .renderingMode(.original)
+            .clipShape(Capsule())
+            .shadow(radius: 5)
     }
 }
 
