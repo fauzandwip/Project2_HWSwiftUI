@@ -11,6 +11,7 @@ struct ContentView: View {
     
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
+    @State private var wrongCountry = ""
     
     @State private var isFinal = false
     @State private var score = 0
@@ -19,7 +20,12 @@ struct ContentView: View {
     
     // animations
     @State private var spinAnimationAmounts = [0.0, 0.0, 0.0]
+    @State private var shakeAnimationAmounts = [0.0, 0.0, 0.0]
+    @State private var shouldShake = false
+    
     @State private var animateOpacity = false
+    @State private var animateScore = false
+    @State private var animateWrong = false
     
     var body: some View {
         
@@ -58,6 +64,7 @@ struct ContentView: View {
                             }
                             .rotation3DEffect(.degrees(spinAnimationAmounts[number]), axis: (x: 0, y: 1, z: 0))
                             .opacity(animateOpacity ? (number == correctAnswer ? 1 : 0.25) : 1)
+                            .rotationEffect(shouldShake ? .degrees(shakeAnimationAmounts[number]) : .degrees(0))
                         }
                     }
                 }
@@ -70,11 +77,18 @@ struct ContentView: View {
                 Spacer()
                 
                 // score section
-                Text("Score: \(score)")
-                    .foregroundColor(.white)
-                    .font(.title.bold())
+                ZStack {
+                    Text("Score: \(score)")
+                        .foregroundColor(animateScore ? (animateWrong ? .red : .green) : .white)
+                        .font(.title.bold())
+                }
                 
                 Spacer()
+                
+                Text("That was \(wrongCountry)")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .opacity(animateWrong ? 1 : 0)
                 
             }
             .padding()
@@ -99,8 +113,32 @@ struct ContentView: View {
             withAnimation(.spring(dampingFraction: 1)) {
                 self.spinAnimationAmounts[number] += 360
             }
+            
+            withAnimation {
+                animateScore = true
+                animateWrong = false
+            }
         } else {
+            withAnimation(.easeOut(duration: 0.1).repeatCount(5)) {
+                shouldShake = true
+                shakeAnimationAmounts[number] = 10
+            }
+            
+            withAnimation {
+                animateScore = true
+                animateWrong = true
+            }
+            
+            withAnimation {
+                wrongCountry = countries[number]
+            }
 
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation(.easeOut(duration: 0.1)) {
+                    shouldShake = false
+                }
+            }
+            
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -116,6 +154,9 @@ struct ContentView: View {
     func askQuestion() {
         animateOpacity = false
         spinAnimationAmounts = [0.0, 0.0, 0.0]
+        shakeAnimationAmounts = [0.0, 0.0, 0.0]
+        animateScore = false
+        animateWrong = false
         
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
