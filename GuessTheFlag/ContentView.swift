@@ -12,13 +12,16 @@ struct ContentView: View {
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
     
-    @State private var showingScore = false
+//    @State private var showingScore = false
     @State private var isFinal = false
-    @State private var scoreTitle = ""
+//    @State private var scoreTitle = ""
     
     @State private var score = 0
     @State private var countChoose = 0
-    private var life = 8
+    private var life = 3
+    
+    // animations
+    @State private var spinAnimationAmounts = [0.0, 0.0, 0.0]
     
     var body: some View {
         
@@ -55,6 +58,7 @@ struct ContentView: View {
                                 // MARK: - Challenge 2 Project3
                                 FlagImage(name: countries[number])
                             }
+                            .rotation3DEffect(.degrees(spinAnimationAmounts[number]), axis: (x: 0, y: 1, z: 0))
                         }
                     }
                 }
@@ -75,14 +79,14 @@ struct ContentView: View {
             }
             .padding()
         }
-        .alert(scoreTitle, isPresented: $showingScore) {
-            Button("Continue") {
-                askQuestion()
-                if countChoose == life { isFinal = true }
-            }
-        } message: {
-            Text("Your score is \(score)")
-        }
+//        .alert(scoreTitle, isPresented: $showingScore) {
+//            Button("Continue") {
+//                askQuestion()
+//                if countChoose == life { isFinal = true }
+//            }
+//        } message: {
+//            Text("Your score is \(score)")
+//        }
         .alert("Finish", isPresented: $isFinal) {
             Button("Restart") { restart() }
         } message: {
@@ -94,16 +98,31 @@ struct ContentView: View {
         countChoose += 1
 
         if number == correctAnswer {
-            scoreTitle = "Correct"
+//            scoreTitle = "Correct"
             score += 1
+            
+            withAnimation(.spring(dampingFraction: 1)) {
+                spinAnimationAmounts[number] += 360
+            }
         } else {
-            scoreTitle = "Wrong!\n That's the flag of \(countries[number])"
+//            scoreTitle = "Wrong!\n That's the flag of \(countries[number])"
         }
-                
-        showingScore = true
+
+        
+//        showingScore = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            if countChoose == life {
+                isFinal = true
+            } else {
+                askQuestion()
+            }
+        }
+        
     }
     
     func askQuestion() {
+        self.spinAnimationAmounts = [0.0, 0.0, 0.0]
+        
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
     }
@@ -111,6 +130,8 @@ struct ContentView: View {
     func restart() {
         score = 0
         countChoose = 0
+        countries.shuffle()
+        correctAnswer = Int.random(in: 0...2)
     }
 }
 
