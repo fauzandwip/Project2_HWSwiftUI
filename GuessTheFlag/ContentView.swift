@@ -16,7 +16,7 @@ struct ContentView: View {
     @State private var isFinal = false
     @State private var score = 0
     @State private var tapCount = 0
-    private var life = 3
+    private var life = 8
     
     // animations
     @State private var spinAnimationAmounts = [0.0, 0.0, 0.0]
